@@ -1,0 +1,98 @@
+---
+# Tasks for webservers role
+
+- name: Update apt cache (Ubuntu/Debian)
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Update yum cache (CentOS/RedHat)
+  yum:
+    update_cache: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Install Apache on Ubuntu/Debian
+  apt:
+    name: apache2
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install Apache on CentOS/RedHat
+  yum:
+    name: httpd
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Start and enable Apache on Ubuntu/Debian
+  systemd:
+    name: apache2
+    state: started
+    enabled: yes
+  when: ansible_os_family == "Debian"
+
+- name: Start and enable Apache on CentOS/RedHat
+  systemd:
+    name: httpd
+    state: started
+    enabled: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Install unzip package (Ubuntu/Debian)
+  apt:
+    name: unzip
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install unzip package (CentOS/RedHat)
+  yum:
+    name: unzip
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Download static website
+  get_url:
+    url: https://www.tooplate.com/download/2144_parallax_depth
+    dest: /tmp/website.zip
+    mode: '0644'
+
+- name: Remove old website files
+  file:
+    path: /var/www/html/
+    state: absent
+
+- name: Create html directory
+  file:
+    path: /var/www/html
+    state: directory
+    mode: '0755'
+
+- name: Unzip website to /tmp
+  unarchive:
+    src: /tmp/website.zip
+    dest: /tmp/
+    remote_src: yes
+
+- name: Copy website files to document root
+  shell: cp -r /tmp/2144_parallax_depth/* /var/www/html/
+
+- name: Set permissions on website files
+  file:
+    path: /var/www/html
+    owner: www-data
+    group: www-data
+    recurse: yes
+  when: ansible_os_family == "Debian"
+
+- name: Set permissions on website files (CentOS)
+  file:
+    path: /var/www/html
+    owner: apache
+    group: apache
+    recurse: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Clean up downloaded zip file
+  file:
+    path: /tmp/website.zip
+    state: absent

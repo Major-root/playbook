@@ -1,0 +1,24 @@
+all:
+  hosts:
+    serverOne:
+      ansible_host: 192.168.56.11
+    serverTwo:
+      ansible_host: 192.168.56.12
+    serverThree:
+      ansible_host: 192.168.56.13
+    serverFour:
+      ansible_host: 192.168.56.14
+
+  children:
+    webservers:
+      hosts:
+        serverOne:
+        serverTwo:
+        serverFour:
+    loadbalancer:
+      hosts:
+        serverThree:
+  vars:
+    ansible_user: root
+    ansible_ssh_private_key_file: ~/.ssh/id_rsa
+    ansible_python_interpreter: /usr/bin/python3

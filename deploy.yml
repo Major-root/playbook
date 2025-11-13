@@ -1,0 +1,12 @@
+---
+- name: Deploy static website to webservers
+  hosts: webservers
+  become: yes
+  roles:
+    - webservers
+
+- name: Configure Nginx load balancer
+  hosts: loadbalancer
+  become: yes
+  roles:
+    - nginx
